@@ -7,7 +7,7 @@ from tiktok_signer.lib.ttencrypt import TTEncrypt
 class TikTokSigner:
     """TikTok API authentication signer with encryption support."""
     
-    _encryptor: TTEncrypt = None
+    _encryptor: Optional[TTEncrypt] = None
     
     @classmethod
     def _get_encryptor(cls) -> TTEncrypt:

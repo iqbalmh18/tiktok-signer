@@ -93,23 +93,23 @@ class Ladon:
     @staticmethod
     def encrypt(
         aid: Union[int, str] = 1233,
-        license_id: Union[int, str] = 1611921764,
-        timestamp: Optional[int] = None
+        lc_id: Union[int, str] = 2142840551,
+        unix: Optional[int] = None
     ) -> Dict[str, str]:
         """Generate X-Ladon header for TikTok API authentication.
         
         Args:
             aid: Application ID, can be int or str. Defaults to 1233.
-            license_id: License ID for authentication. Defaults to 1611921764.
+            lc_id: License ID for authentication. Defaults to 2142840551.
             timestamp: Unix timestamp in seconds. Defaults to current time.
         
         Returns:
             Dictionary containing 'x-ladon' header value.
         """
         aid = int(aid) if isinstance(aid, str) else aid
-        license_id = int(license_id) if isinstance(license_id, str) else license_id
-        ts = timestamp if timestamp is not None else int(time.time())
-        data = f"{ts}-{license_id}-{aid}"
+        lc_id = int(lc_id) if isinstance(lc_id, str) else lc_id
+        ts = unix if unix is not None else int(time.time())
+        data = f"{ts}-{lc_id}-{aid}"
         random_bytes = urandom(4)
         keygen = random_bytes + str(aid).encode()
         md5hex = Ladon._md5bytes(keygen)

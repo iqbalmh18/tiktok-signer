@@ -37,7 +37,7 @@ pip install -e ".[dev]"
 from tiktok_signer import TikTokSigner
 
 # Generate authentication headers
-headers = TikTokSigner.generate_headers(params="aid=1233&version_name=37.0.4")
+headers = TikTokSigner.generate_headers(params="aid=1233&app_name=musical_ly")
 print(headers)
 
 # Encrypt device registration payload
@@ -59,14 +59,17 @@ Generates all authentication headers required for TikTok API requests.
 
 ```python
 headers = TikTokSigner.generate_headers(
-    params,                          # Required: URL query parameters (str or dict)
-    data=None,                       # Optional: Request body for POST (str, bytes, or dict)
-    sec_device_id="",                # Optional: Secure device identifier
-    aid=1233,                        # Optional: Application ID (int or str)
-    license_id=1611921764,           # Optional: License ID (int or str)
-    sdk_version_str="v05.00.03-ov-android",  # Optional: SDK version string
-    sdk_version=167773760,           # Optional: SDK version number (int or str)
-    cookie=None                      # Optional: Cookie string
+    params,                                      # Required: URL query parameters (str or dict)
+    data=None,                                   # Optional: Request body for POST (str, bytes, or dict)
+    device_id="",                                # Optional: Device identifier
+    aid=1233,                                    # Optional: Application ID (int or str)
+    lc_id=2142840551,                            # Optional: License ID (int or str)
+    sdk_ver="v05.01.02-alpha.7-ov-android",      # Optional: SDK version string
+    sdk_ver_code=83952160,                       # Optional: SDK version code (int or str)
+    app_ver="37.0.4",                            # Optional: App version string
+    version_code=2023700040,                         # Optional: App version code (int or str)
+    cookie=None,                                 # Optional: Cookie string
+    unix=None                                    # Optional: Unix timestamp in seconds
 )
 ```
 
@@ -76,12 +79,15 @@ headers = TikTokSigner.generate_headers(
 |-----------|------|---------|-------------|
 | `params` | `str` or `dict` | Required | URL query parameters |
 | `data` | `str`, `bytes`, `dict`, or `None` | `None` | Request body for POST requests |
-| `sec_device_id` | `str` | `""` | Secure device identifier |
+| `device_id` | `str` | `""` | Device identifier |
 | `aid` | `int` or `str` | `1233` | Application ID |
-| `license_id` | `int` or `str` | `1611921764` | License ID |
-| `sdk_version_str` | `str` | `"v05.00.03-ov-android"` | SDK version string |
-| `sdk_version` | `int` or `str` | `167773760` | SDK version number |
+| `lc_id` | `int` or `str` | `2142840551` | License ID |
+| `sdk_ver` | `str` | `"v05.01.02-alpha.7-ov-android"` | SDK version string |
+| `sdk_ver_code` | `int` or `str` | `83952160` | SDK version code |
+| `app_ver` | `str` | `"37.0.4"` | App version string |
+| `version_code` | `int` or `str` | `2023700040` | App version code |
 | `cookie` | `str` or `None` | `None` | Cookie string |
+| `unix` | `int` or `None` | `None` | Unix timestamp in seconds. If None, uses current time. |
 
 **Returns:** `Dict[str, str]`
 
@@ -159,7 +165,6 @@ from tiktok_signer import TikTokSigner
 params = {
     "aid": 1233,
     "app_name": "musical_ly",
-    "version_name": "37.0.4",
     "device_platform": "android",
     "os_version": "9",
     "device_type": "2203121C",
@@ -194,7 +199,7 @@ print(response.json())
 import requests
 from tiktok_signer import TikTokSigner
 
-params = "aid=1233&app_name=musical_ly&version_name=37.0.4"
+params = "aid=1233&app_name=musical_ly"
 
 # Request body
 data = {
@@ -221,6 +226,24 @@ response = requests.post(url, headers=headers, data=data)
 print(response.json())
 ```
 
+### Using Custom Unix Timestamp
+
+```python
+import time
+from tiktok_signer import TikTokSigner
+
+# Use custom unix timestamp (useful for replay or testing)
+custom_unix = int(time.time()) - 60  # 1 minute ago
+
+headers = TikTokSigner.generate_headers(
+    params="aid=1233&app_name=musical_ly",
+    unix=custom_unix
+)
+
+# x-khronos will reflect the custom timestamp
+print(f"x-khronos: {headers['x-khronos']}")  # Will show custom_unix value
+```
+
 ### Device Registration with TTEncrypt
 
 ```python
@@ -239,8 +262,8 @@ device_info = {
         "channel": "googleplay",
         "package": "com.zhiliaoapp.musically",
         "app_version": "37.0.4",
-        "version_code": 370004,
-        "sdk_version": "3.9.17-bugfix.9",
+        "version_code": 2023700040,
+        "sdk_ver_code": "3.9.17-bugfix.9",
         "os": "Android",
         "os_version": "9",
         "os_api": 28,
@@ -293,7 +316,6 @@ from tiktok_signer import TikTokSigner
 params = {
     "aid": 1233,
     "app_name": "musical_ly",
-    "version_name": "37.0.4",
     "device_platform": "android",
 }
 
@@ -301,16 +323,18 @@ params = {
 headers = TikTokSigner.generate_headers(params=params)
 ```
 
-### Flexible Type Support
+### Custom App and SDK Versions
 
 ```python
 from tiktok_signer import TikTokSigner
 
-# Parameters aid, license_id, sdk_version support both int and str
-headers1 = TikTokSigner.generate_headers(params="aid=1233", aid=1233)
-headers2 = TikTokSigner.generate_headers(params="aid=1233", aid="1233")
-
-# Both produce the same output
+headers = TikTokSigner.generate_headers(
+    params="aid=1233&app_name=musical_ly",
+    sdk_ver="v05.01.02-alpha.7-ov-android",  # SDK version
+    sdk_ver_code=83952160,                    # SDK version code
+    app_ver="38.0.0",                         # App version
+    version_code=380000                       # App version code
+)
 ```
 
 ## Encryption Algorithms
@@ -337,20 +361,14 @@ This library implements 4 main encryption algorithms:
 
 The library uses the following default values based on the TikTok Android app:
 
-| Parameter | Default Value |
-|-----------|---------------|
-| `aid` | `1233` |
-| `license_id` | `1611921764` |
-| `sdk_version_str` | `"v05.00.03-ov-android"` |
-| `sdk_version` | `167773760` |
-
-These default values are derived from query parameters in TikTok Android app requests:
-
-| Query Parameter | Default Value |
-|-----------------|---------------|
-| `version_name` | `"37.0.4"` |
-| `channel` | `"googleplay"` |
-| `os_version` | `"9"` |
+| Parameter | Default Value | Description |
+|-----------|---------------|-------------|
+| `aid` | `1233` | Application ID |
+| `lc_id` | `2142840551` | License ID |
+| `sdk_ver` | `"v05.01.02-alpha.7-ov-android"` | SDK version string |
+| `sdk_ver_code` | `83952160` | SDK version code |
+| `app_ver` | `"37.0.4"` | App version string |
+| `version_code` | `2023700040` | App version code |
 
 ## Project Structure
 
@@ -363,12 +381,12 @@ tiktok-signer/
 └── tiktok_signer/              # Main package
     ├── __init__.py             # Package exports
     ├── signer.py               # TikTokSigner class
+    ├── example.py              # Usage examples
     └── lib/                    # Internal library
         ├── __init__.py
         ├── argus.py            # X-Argus encryption
         ├── gorgon.py           # X-Gorgon encryption
         ├── ladon.py            # X-Ladon encryption
-        ├── signer.py           # Header generation
         ├── stub.py             # Body hash generation
         ├── ttencrypt.py        # Device payload encryption
         ├── data/
@@ -377,8 +395,7 @@ tiktok-signer/
             ├── __init__.py
             ├── protobuf.py     # Protocol Buffer
             ├── simon.py        # Simon cipher
-            ├── sm3.py          # SM3 hash
-            └── stub.py         # Stub generation
+            └── sm3.py          # SM3 hash
 ```
 
 ## Error Handling
@@ -400,17 +417,28 @@ All public functions include complete type annotations:
 def generate_headers(
     params: Union[str, Dict],
     data: Optional[Union[str, bytes, Dict]] = None,
-    sec_device_id: str = "",
+    device_id: str = "",
     aid: Union[int, str] = 1233,
-    license_id: Union[int, str] = 1611921764,
-    sdk_version_str: str = "v05.00.03-ov-android",
-    sdk_version: Union[int, str] = 167773760,
-    cookie: Optional[str] = None
+    lc_id: Union[int, str] = 2142840551,
+    sdk_ver: str = "v05.01.02-alpha.7-ov-android",
+    sdk_ver_code: Union[int, str] = 83952160,
+    app_ver: str = "37.0.4",
+    version_code: Union[int, str] = 2023700040,
+    cookie: Optional[str] = None,
+    unix: Optional[int] = None
 ) -> Dict[str, str]:
     ...
 ```
 
 ## Changelog
+
+### v1.1.0
+
+- Consolidated signer into single robust module
+- Added `unix` parameter for custom timestamp support
+- Added `app_ver` and `version_code` parameters
+- Added default value from TikTok App (`2026`)
+- Separated SDK version (`sdk_ver`, `sdk_ver_code`) from App version (`app_ver`, `version_code`)
 
 ### v1.0.0
 

@@ -6,6 +6,7 @@ from struct import unpack
 from random import randint
 from base64 import b64encode
 from time import time
+from uuid import uuid4
 from Crypto.Util.Padding import pad
 from Crypto.Cipher.AES import MODE_CBC, block_size, new
 from tiktok_signer.lib.utils.protobuf import ProtoBuf
@@ -18,12 +19,15 @@ class Argus:
     
     _simon = Simon()
     _sm3 = SM3()
+
     DEFAULT_AID: int = 1233
-    DEFAULT_LICENSE_ID: int = 1611921764
-    DEFAULT_SDK_VERSION_STR: str = "v05.00.03-ov-android"
-    DEFAULT_SDK_VERSION: int = 167773760
-    DEFAULT_VERSION_NAME: str = "37.0.4"
+    DEFAULT_LC_ID: int = 2142840551
+    DEFAULT_SDK_VER: str = "v05.01.02-alpha.7-ov-android"
+    DEFAULT_SDK_VER_CODE: int = 83952160
+    DEFAULT_APP_VER: str = "37.0.4"
+    DEFAULT_VERSION_CODE: int = 2023700040
     DEFAULT_CHANNEL: str = "googleplay"
+    DEFAULT_DEVICE_TYPE = "unknown"
     DEFAULT_OS_VERSION: str = "9"
     
     @staticmethod
@@ -72,9 +76,16 @@ class Argus:
         return b64encode(b"\xf2\x81" + cipher.encrypt(pad(b_buffer, block_size))).decode("utf-8")
     
     @staticmethod
-    def _calculate_app_version(version_name: str) -> int:
-        """Calculate app version hash from version string."""
-        parts = version_name.split(".")
+    def _calculate_app_version(app_ver: str) -> int:
+        """Calculate app version hash from version string.
+        
+        Args:
+            app_ver: App version string in format "major.minor.patch" (e.g., "37.0.4").
+        
+        Returns:
+            Calculated version hash.
+        """
+        parts = app_ver.split(".")
         app_version_hash = bytes.fromhex(
             "{:x}{:x}{:x}00".format(
                 int(parts[2]) * 4,
@@ -87,43 +98,49 @@ class Argus:
     @staticmethod
     def encrypt(
         params: Union[str, Dict],
-        data: Optional[Union[str, bytes, Dict]] = None,
-        timestamp: Optional[int] = None,
-        aid: Union[int, str] = 1233,
-        license_id: Union[int, str] = 1611921764,
-        sec_device_id: str = "",
-        sdk_version_str: str = "v05.00.03-ov-android",
-        sdk_version: Union[int, str] = 167773760
+        data: Optional[Union[str, Dict, bytes]] = None,
+        unix: Optional[int] = None,
+        device_id: Optional[str] = None,
+        aid: Union[str, int] = 1233,
+        lc_id: Union[str, int] = 2142840551,
+        sdk_ver: str = "v05.01.02-alpha.7-ov-android",
+        sdk_ver_code: Union[str, int] = 83952160,
+        app_ver: str = "37.0.4",
+        version_code: Union[str, int] = 2023700040,
     ) -> Dict[str, str]:
         """Generate X-Argus header for TikTok API authentication.
         
         Args:
-            params: URL query parameters as string or dict.
-            data: Request body data as string, bytes, or dict.
-            timestamp: Unix timestamp in seconds. Defaults to current time.
-            aid: Application ID. Defaults to 1233.
-            license_id: License ID. Defaults to 1611921764.
-            sec_device_id: Secure device identifier. Defaults to empty string.
-            sdk_version_str: SDK version string. Defaults to "v05.00.03-ov-android".
-            sdk_version: SDK version number. Defaults to 167773760.
+            params (str | dict): URL query parameters.
+            data (str | dict | bytes): Request body for POST requests.
+            unix (int): Unix timestamp in seconds. Defaults to current time.
+            device_id (str): Device identifier.
+            aid (str | int): Application ID.
+            lc_id (str | int): License ID.
+            sdk_ver (str): SDK version (e.g., "v05.01.02-alpha.7-ov-android").
+            sdk_ver_code (str | int): SDK version code.
+            app_ver (str): App version (e.g., "37.0.4").
+            version_code (str | int): App version code (e.g., 2023700040).
         
         Returns:
-            Dictionary containing 'x-argus' header value.
+            dict: 'x-argus' header value.
         """
         aid = int(aid) if isinstance(aid, str) else aid
-        license_id = int(license_id) if isinstance(license_id, str) else license_id
-        sdk_version = int(sdk_version) if isinstance(sdk_version, str) else sdk_version
-        ts = timestamp if timestamp is not None else int(time())
+        lc_id = int(lc_id) if isinstance(lc_id, str) else lc_id
+        sdk_ver_code = int(sdk_ver_code) if isinstance(sdk_ver_code, str) else sdk_ver_code
+        version_code = int(version_code) if isinstance(version_code, str) else version_code
+        ts = unix if unix is not None else int(time())
         if isinstance(params, dict):
             params_str = urlencode(params)
         else:
             params_str = str(params)
         params_dict = parse_qs(params_str)
         channel = params_dict.get("channel", [Argus.DEFAULT_CHANNEL])[0]
-        device_id = params_dict.get("device_id", [""])[0]
-        device_type = params_dict.get("device_type", [""])[0]
+        device_id = params_dict.get("device_id", uuid4().hex[:16])[0]
+        device_type = params_dict.get("device_type", [Argus.DEFAULT_DEVICE_TYPE])[0]
         os_version = params_dict.get("os_version", [Argus.DEFAULT_OS_VERSION])[0]
-        version_name = params_dict.get("version_name", [Argus.DEFAULT_VERSION_NAME])[0]
+        # Get app_version from params or use provided/default value
+        app_ver = params_dict.get("app_version", [app_ver])[0]
         stub = None
         if data is not None:
             from tiktok_signer.lib.stub import generate_stub
@@ -135,24 +152,24 @@ class Argus:
             3: randint(0, 0x7FFFFFFF),
             4: str(aid),
             5: device_id,
-            6: str(license_id),
-            7: version_name,
-            8: sdk_version_str,
-            9: sdk_version,
+            6: str(lc_id),
+            7: sdk_ver,
+            8: sdk_ver,
+            9: sdk_ver_code,
             10: bytes(8),
             11: "android",
             12: ts << 1,
             13: Argus._get_bodyhash(stub),
             14: Argus._get_queryhash(params_str),
             15: {1: 85, 2: 85, 3: 85, 5: 85, 6: 170, 7: (ts << 1) - 310},
-            16: sec_device_id,
+            16: device_id,
             20: "none",
             21: 738,
             23: {
                 1: device_type,
                 2: os_version,
                 3: channel,
-                4: Argus._calculate_app_version(version_name),
+                4: Argus._calculate_app_version(app_ver),
             },
             25: 2,
         }

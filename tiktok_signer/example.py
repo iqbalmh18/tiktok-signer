@@ -23,7 +23,6 @@ def main() -> None:
     params = {
         "aid": "1233",
         "app_name": "musical_ly",
-        "version_name": "37.0.4",
         "device_platform": "android",
         "os_version": "9",
         "device_type": "2203121C",
@@ -49,7 +48,6 @@ def main() -> None:
     headers_post = TikTokSigner.generate_headers(
         params="aid=1233&app_name=musical_ly",
         data=post_data,
-        cookie="sessionid=abc123"
     )
     print("Output headers:")
     for key, value in headers_post.items():
@@ -68,8 +66,8 @@ def main() -> None:
             "channel": "googleplay",
             "package": "com.zhiliaoapp.musically",
             "app_version": "37.0.4",
-            "version_code": 370004,
-            "sdk_version": "3.9.17-bugfix.9",
+            "version_code": 2023700040,
+            "sdk_ver_code": "3.9.17-bugfix.9",
             "os": "Android",
             "os_version": "9",
             "os_api": 28,
@@ -106,6 +104,21 @@ def main() -> None:
     print(f"generate_headers(): {list(headers_shortcut.keys())}")
     encrypted_shortcut = encrypt({"test": "data"})
     print(f"encrypt(): {len(encrypted_shortcut)} bytes")
+    print()
+    print("[5] Generate Headers with Custom Unix Timestamp")
+    print("-" * 60)
+    import time
+    custom_unix = int(time.time()) - 60  # 1 minute ago
+    print(f"Custom unix timestamp: {custom_unix}")
+    print()
+    headers_unix = TikTokSigner.generate_headers(
+        params=params,
+        unix=custom_unix
+    )
+    print("Output headers:")
+    for key, value in headers_unix.items():
+        print(f"  {key}: {value}")
+    print(f"Note: x-khronos should be {custom_unix}")
     print()
     print("=" * 60)
     print("All examples completed successfully!")

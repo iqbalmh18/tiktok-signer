@@ -98,7 +98,8 @@ class Gorgon:
     def encrypt(
         params: Union[str, Dict],
         headers: Optional[Dict] = None,
-        cookie: Optional[str] = None
+        cookie: Optional[str] = None,
+        unix: Optional[int] = None
     ) -> Dict[str, str]:
         """Generate X-Gorgon and X-Khronos headers for TikTok API.
         
@@ -106,6 +107,7 @@ class Gorgon:
             params: URL query parameters as string or dict.
             headers: Request headers dict containing x-ss-stub and/or cookie.
             cookie: Cookie string. If not provided, will use headers["cookie"].
+            unix: Unix timestamp in seconds. If None, uses current time.
         
         Returns:
             Dictionary containing 'x-gorgon' and 'x-khronos' header values.
@@ -119,7 +121,8 @@ class Gorgon:
         if cookie is not None:
             headers_lower["cookie"] = cookie
         gorgon = []
-        khronos = hex(int(time.time()))[2:]
+        ts = unix if unix is not None else int(time.time())
+        khronos = hex(ts)[2:]
         url_md5 = hashlib.md5(params_str.encode()).hexdigest()
         for i in range(4):
             gorgon.append(int(url_md5[2 * i : 2 * i + 2], 16))
@@ -138,4 +141,5 @@ class Gorgon:
         gorgon.extend([0] * 4)
         for i in range(4):
             gorgon.append(int(khronos[2 * i : 2 * i + 2], 16))
-        return {"x-gorgon": Gorgon._calculate(gorgon), "x-khronos": str(int(khronos, 16))}
+        return {"x-gorgon": Gorgon._calculate(gorgon), "x-khronos": str(ts)}
+

@@ -4,10 +4,10 @@ Python library for generating TikTok Android API authentication signatures. This
 
 ## Installation
 
-### From PyPI
+### From pip
 
 ```bash
-pip install tiktok-signer
+pip install git+https://github.com/iqbalmh18/tiktok-signer.git
 ```
 
 ### From Source

@@ -1,0 +1,77 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tiktok-signer"
+dynamic = ["version"]
+description = "TikTok Android API authentication signature generator"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.10"
+authors = [
+    {name = "iqbalmh18"}
+]
+keywords = [
+    "tiktok",
+    "signature",
+    "api",
+    "authentication",
+    "android"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+    "pycryptodome>=3.23.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0.0",
+    "pytest-cov>=7.0.0",
+    "ruff>=0.14.0",
+    "mypy>=1.19.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/iqbalmh18/tiktok-signer"
+Repository = "https://github.com/iqbalmh18/tiktok-signer"
+Issues = "https://github.com/iqbalmh18/tiktok-signer/issues"
+
+[tool.hatch.version]
+path = "tiktok_signer/__init__.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["tiktok_signer"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+    "tiktok_signer/**",
+    "README.md",
+    "LICENSE",
+    "pyproject.toml",
+]
+
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_return_any = true
+warn_unused_configs = true

@@ -45,6 +45,12 @@ encrypted = TikTokSigner.encrypt({"device_id": "123456", "os": "android"})
 
 # Decrypt response
 decrypted = TikTokSigner.decrypt(encrypted_bytes)
+
+# Encode dict to protobuf format
+protobuf_data = TikTokSigner.encode({1: "value", 2: 123})
+
+# Decode protobuf response
+dict_data = TikTokSigner.decode(protobuf_bytes)
 ```
 
 ## API Reference
@@ -136,12 +142,44 @@ decrypted = TikTokSigner.decrypt(encrypted_bytes)
 
 **Returns:** `str` - Decrypted data (typically a JSON string)
 
+#### TikTokSigner.encode()
+
+Encodes a dictionary to protobuf format.
+
+```python
+protobuf_data = TikTokSigner.encode(data)
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `data` | `dict` | Dictionary to encode. Keys should be field numbers (int). |
+
+**Returns:** `bytes` - Protobuf encoded data
+
+#### TikTokSigner.decode()
+
+Decodes protobuf data to dictionary.
+
+```python
+dict_data = TikTokSigner.decode(protobuf_bytes)
+```
+
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `data` | `bytes` or `ProtoBuf` | Protobuf data to decode |
+
+**Returns:** `dict` - Decoded dictionary with field numbers as keys
+
 ### Shortcut Functions
 
 The library also provides shortcut functions for convenience:
 
 ```python
-from tiktok_signer import generate_headers, encrypt, decrypt
+from tiktok_signer import generate_headers, encrypt, decrypt, encode, decode
 
 # Same as TikTokSigner.generate_headers()
 headers = generate_headers(params="aid=1233")
@@ -151,6 +189,12 @@ encrypted = encrypt({"key": "value"})
 
 # Same as TikTokSigner.decrypt()
 decrypted = decrypt(encrypted_bytes)
+
+# Same as TikTokSigner.encode()
+protobuf_data = encode({1: "value", 2: 123})
+
+# Same as TikTokSigner.decode()
+dict_data = decode(protobuf_bytes)
 ```
 
 ## Usage Examples
@@ -431,6 +475,12 @@ def generate_headers(
 ```
 
 ## Changelog
+
+### v1.2.0
+
+- Added protobuf encode/decode support (`encode`, `decode`)
+- Exposed `ProtoBuf` class from `tiktok_signer.lib.utils.protobuf`
+- Added shortcut functions for encode/decode
 
 ### v1.1.0
 

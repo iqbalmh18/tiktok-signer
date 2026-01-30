@@ -12,7 +12,7 @@ from pathlib import Path
 if __name__ == "__main__" and not __package__:
     sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from tiktok_signer import TikTokSigner, generate_headers, encrypt, __version__
+from tiktok_signer import TikTokSigner, generate_headers, encrypt, encode, decode, __version__
 
 
 def main() -> None:
@@ -98,14 +98,7 @@ def main() -> None:
     print(f"Encrypted: {len(encrypted)} bytes")
     print(f"Hex preview: {encrypted.hex()}")
     print()
-    print("[4] Shortcut Functions")
-    print("-" * 60)
-    headers_shortcut = generate_headers(params="aid=1233")
-    print(f"generate_headers(): {list(headers_shortcut.keys())}")
-    encrypted_shortcut = encrypt({"test": "data"})
-    print(f"encrypt(): {len(encrypted_shortcut)} bytes")
-    print()
-    print("[5] Generate Headers with Custom Unix Timestamp")
+    print("[4] Generate Headers with Custom Unix Timestamp")
     print("-" * 60)
     import time
     custom_unix = int(time.time()) - 60  # 1 minute ago
@@ -119,6 +112,36 @@ def main() -> None:
     for key, value in headers_unix.items():
         print(f"  {key}: {value}")
     print(f"Note: x-khronos should be {custom_unix}")
+    print()
+    print("[5] Protobuf Encode/Decode")
+    print("-" * 60)
+    protobuf_data = {
+        1: "string_value",
+        2: 12345,
+        3: {
+            1: "nested_value",
+            2: 67890,
+        },
+    }
+    print(f"Input: {protobuf_data}")
+    print()
+    encoded = TikTokSigner.encode(protobuf_data)
+    print(f"Encoded: {len(encoded)} bytes")
+    print(f"Hex: {encoded.hex()}")
+    print()
+    decoded = TikTokSigner.decode(encoded)
+    print(f"Decoded: {decoded}")
+    print()
+    print("[6] Shortcut Functions")
+    print("-" * 60)
+    headers_shortcut = generate_headers(params="aid=1233")
+    print(f"generate_headers(): {list(headers_shortcut.keys())}")
+    encrypted_shortcut = encrypt({"test": "data"})
+    print(f"encrypt(): {len(encrypted_shortcut)} bytes")
+    encoded_shortcut = encode({1: "test", 2: 123})
+    print(f"encode(): {len(encoded_shortcut)} bytes")
+    decoded_shortcut = decode(encoded_shortcut)
+    print(f"decode(): {decoded_shortcut}")
     print()
     print("=" * 60)
     print("All examples completed successfully!")

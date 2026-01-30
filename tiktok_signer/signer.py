@@ -9,6 +9,7 @@ from tiktok_signer.lib.ladon import Ladon
 from tiktok_signer.lib.gorgon import Gorgon
 from tiktok_signer.lib.stub import generate_stub
 from tiktok_signer.lib.ttencrypt import TTEncrypt
+from tiktok_signer.lib.utils.protobuf import ProtoBuf, protobuf_encode, protobuf_decode
 
 
 class TikTokSigner:
@@ -171,6 +172,30 @@ class TikTokSigner:
         """
         return cls._get_encryptor().decrypt(data)
 
+    @classmethod
+    def encode(cls, data: Dict) -> bytes:
+        """Encode dict to protobuf data
+
+        Args:
+            data (dict): Request body
+
+        Returns:
+            bytes: protobuf format
+        """
+        return protobuf_encode(data=data)
+    
+    @classmethod
+    def decode(cls, data: Union[bytes, ProtoBuf]) -> Dict:
+        """Decode protobuf data to dict
+
+        Args:
+            data (ProtoBuf): protobuf data
+
+        Returns:
+            dict: protobuf data
+        """
+        return protobuf_decode(data=data)
+
 
 def generate_headers(
     params: Union[str, Dict],
@@ -226,3 +251,13 @@ def encrypt(data: Union[str, bytes, Dict]) -> bytes:
 def decrypt(data: bytes) -> str:
     """Decrypt TikTok TTEncrypt encrypted data."""
     return TikTokSigner.decrypt(data)
+
+
+def encode(data: Dict) -> bytes:
+    """Encode dict to protobuf format."""
+    return TikTokSigner.encode(data=data)
+
+
+def decode(data: Union[bytes, ProtoBuf]) -> Dict:
+    """Decode protobuf data to dict."""
+    return TikTokSigner.decode(data=data)

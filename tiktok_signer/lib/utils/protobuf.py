@@ -367,3 +367,61 @@ class ProtoBuf:
             else:
                 raise ProtoError(f"unsupport type({type(v)}) to protobuf")
         return out
+
+def protobuf_encode(data: Dict) -> bytes:
+    """Encode protobuf dict to bytes
+
+    Args:
+        data (dict): Request body
+
+    Returns:
+        bytes: protobuf format
+    """
+    body = ProtoBuf(data).toBuf()
+    return body
+
+def protobuf_decode(data: Union[bytes, ProtoBuf]) -> Dict:
+    """Decode protobuf to dict
+
+    Args:
+        data (ProtoBuf): protobuf data
+
+    Returns:
+        dict: protobuf data
+    """
+    out = {}
+    if not isinstance(data, ProtoBuf):
+        data = ProtoBuf(data=data)
+    for f in data.fields:
+        k = f.idx
+        if f.type in (
+            ProtoFieldType.VARINT,
+            ProtoFieldType.INT32,
+            ProtoFieldType.INT64,
+        ):
+            v = f.val
+        elif f.type == ProtoFieldType.STRING:
+            b = f.val
+            try:
+                s = b.decode("utf-8")
+                if all(0x20 <= ord(ch) <= 0x7E or ch in "\r\n\t" for ch in s):
+                    v = s
+                else:
+                    try:
+                        v = protobuf_decode(ProtoBuf(b))
+                    except Exception:
+                        v = {"__bytes_hex__": b.hex()}
+            except Exception:
+                try:
+                    v = protobuf_decode(ProtoBuf(b))
+                except Exception:
+                    v = {"__bytes_hex__": b.hex()}
+        else:
+            v = f.val
+        if k in out:
+            if not isinstance(out[k], list):
+                out[k] = [out[k]]
+            out[k].append(v)
+        else:
+            out[k] = v
+    return out

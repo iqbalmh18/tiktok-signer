@@ -132,7 +132,7 @@ class ProtoWriter:
     
     def write_varint(self, vint: int) -> None:
         """Write variable-length integer."""
-        vint = vint & 0xFFFFFFFF
+        vint = vint & 0xFFFFFFFFFFFFFFFF
         while vint > 0x80:
             self.write0((vint & 0x7F) | 0x80)
             vint >>= 7

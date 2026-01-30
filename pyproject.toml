@@ -34,6 +34,7 @@ classifiers = [
 ]
 dependencies = [
     "pycryptodome>=3.23.0",
+    "twine>=6.2.0",
 ]
 
 [project.optional-dependencies]

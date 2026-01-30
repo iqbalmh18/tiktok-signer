@@ -45,7 +45,7 @@ class TikTokSigner:
         lc_id: Union[str, int] = 2142840551,
         sdk_ver: str = "v05.01.02-alpha.7-ov-android",
         sdk_ver_code: Union[str, int] = 83952160,
-        app_ver: str = "37.0.4",
+        version_name: str = "37.0.4",
         version_code: Union[str, int] = 2023700040,
         cookie: Optional[str] = None,
         unix: Optional[int] = None
@@ -63,7 +63,7 @@ class TikTokSigner:
             lc_id (str | int): License ID.
             sdk_ver (str): SDK version (e.g., "v05.01.02-alpha.7-ov-android").
             sdk_ver_code (str | int): SDK version code.
-            app_ver (str): App version (e.g., "37.0.4").
+            version_name (str): App version name (e.g., "37.0.4").
             version_code (str | int): App version code (e.g., 2023700040).
             cookie (str): Cookie string.
             unix (int): Unix timestamp in seconds. If None, uses current time.
@@ -138,7 +138,7 @@ class TikTokSigner:
             device_id=device_id,
             sdk_ver=sdk_ver,
             sdk_ver_code=sdk_ver_code,
-            app_ver=app_ver,
+            version_name=version_name,
             version_code=version_code,
         ))
         
@@ -209,7 +209,7 @@ def generate_headers(
     lc_id: Union[int, str] = 2142840551,
     sdk_ver: str = "v05.01.02-alpha.7-ov-android",
     sdk_ver_code: Union[int, str] = 83952160,
-    app_ver: str = "37.0.4",
+    version_name: str = "37.0.4",
     version_code: Union[int, str] = 2023700040,
     cookie: Optional[str] = None,
     unix: Optional[int] = None
@@ -224,7 +224,7 @@ def generate_headers(
         lc_id (str | int): License ID.
         sdk_ver (str): SDK version (e.g., "v05.01.02-alpha.7-ov-android").
         sdk_ver_code (str | int): SDK version code.
-        app_ver (str): App version (e.g., "37.0.4").
+        version_name (str): App version name (e.g., "37.0.4").
         version_code (str | int): App version code (e.g., 2023700040).
         cookie (str): Cookie string.
         unix (int): Unix timestamp in seconds. If None, uses current time.
@@ -240,7 +240,7 @@ def generate_headers(
         lc_id=lc_id,
         sdk_ver=sdk_ver,
         sdk_ver_code=sdk_ver_code,
-        app_ver=app_ver,
+        version_name=version_name,
         version_code=version_code,
         cookie=cookie,
         unix=unix,

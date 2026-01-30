@@ -78,10 +78,10 @@ headers = TikTokSigner.generate_headers(
     device_id="",                                # Optional: Device identifier
     aid=1233,                                    # Optional: Application ID (int or str)
     lc_id=2142840551,                            # Optional: License ID (int or str)
-    sdk_ver="v05.01.02-alpha.7-ov-android",      # Optional: SDK version string
+    sdk_ver="v05.01.02-alpha.7-ov-android",      # Optional: SDK version name
     sdk_ver_code=83952160,                       # Optional: SDK version code (int or str)
-    app_ver="37.0.4",                            # Optional: App version string
-    version_code=2023700040,                         # Optional: App version code (int or str)
+    version_name="37.0.4",                       # Optional: App version name
+    version_code=2023700040,                     # Optional: App version code (int or str)
     cookie=None,                                 # Optional: Cookie string
     unix=None                                    # Optional: Unix timestamp in seconds
 )
@@ -96,9 +96,9 @@ headers = TikTokSigner.generate_headers(
 | `device_id` | `str` | `""` | Device identifier |
 | `aid` | `int` or `str` | `1233` | Application ID |
 | `lc_id` | `int` or `str` | `2142840551` | License ID |
-| `sdk_ver` | `str` | `"v05.01.02-alpha.7-ov-android"` | SDK version string |
+| `sdk_ver` | `str` | `"v05.01.02-alpha.7-ov-android"` | SDK version name |
 | `sdk_ver_code` | `int` or `str` | `83952160` | SDK version code |
-| `app_ver` | `str` | `"37.0.4"` | App version string |
+| `version_name` | `str` | `"37.0.4"` | App version name |
 | `version_code` | `int` or `str` | `2023700040` | App version code |
 | `cookie` | `str` or `None` | `None` | Cookie string |
 | `unix` | `int` or `None` | `None` | Unix timestamp in seconds. If None, uses current time. |
@@ -107,7 +107,7 @@ headers = TikTokSigner.generate_headers(
 
 ```python
 {
-    "x-ss-req-ticket": "1706789012345",      # Request timestamp (milliseconds)
+    "x-ss-req-ticket": "1706789012345",       # Request timestamp (milliseconds)
     "x-tt-trace-id": "00-abc123...-01",       # Trace identifier
     "x-ss-stub": "ABC123...",                 # Body hash (only if data is provided)
     "x-ladon": "base64_encoded_token",        # Ladon authentication
@@ -313,7 +313,7 @@ device_info = {
         "aid": 1233,
         "channel": "googleplay",
         "package": "com.zhiliaoapp.musically",
-        "app_version": "37.0.4",
+        "version_name": "37.0.4",
         "version_code": 2023700040,
         "sdk_ver_code": "3.9.17-bugfix.9",
         "os": "Android",
@@ -384,7 +384,7 @@ headers = TikTokSigner.generate_headers(
     params="aid=1233&app_name=musical_ly",
     sdk_ver="v05.01.02-alpha.7-ov-android",  # SDK version
     sdk_ver_code=83952160,                    # SDK version code
-    app_ver="38.0.0",                         # App version
+    version_name="38.0.0",                         # App version
     version_code=380000                       # App version code
 )
 ```
@@ -417,9 +417,9 @@ The library uses the following default values based on the TikTok Android app:
 |-----------|---------------|-------------|
 | `aid` | `1233` | Application ID |
 | `lc_id` | `2142840551` | License ID |
-| `sdk_ver` | `"v05.01.02-alpha.7-ov-android"` | SDK version string |
+| `sdk_ver` | `"v05.01.02-alpha.7-ov-android"` | SDK version name |
 | `sdk_ver_code` | `83952160` | SDK version code |
-| `app_ver` | `"37.0.4"` | App version string |
+| `version_name` | `"37.0.4"` | App version name |
 | `version_code` | `2023700040` | App version code |
 
 ## Project Structure
@@ -474,7 +474,7 @@ def generate_headers(
     lc_id: Union[int, str] = 2142840551,
     sdk_ver: str = "v05.01.02-alpha.7-ov-android",
     sdk_ver_code: Union[int, str] = 83952160,
-    app_ver: str = "37.0.4",
+    version_name: str = "37.0.4",
     version_code: Union[int, str] = 2023700040,
     cookie: Optional[str] = None,
     unix: Optional[int] = None
@@ -483,6 +483,11 @@ def generate_headers(
 ```
 
 ## Changelog
+
+### v1.3.0
+
+- Changed `app_ver` to `version_name` in generate headers parameters
+- Updated minor and reset patch version to `1.3.0`
 
 ### v1.2.1
 
@@ -499,9 +504,9 @@ def generate_headers(
 
 - Consolidated signer into single robust module
 - Added `unix` parameter for custom timestamp support
-- Added `app_ver` and `version_code` parameters
+- Added `version_name` and `version_code` parameters
 - Added default value from TikTok App (`2026`)
-- Separated SDK version (`sdk_ver`, `sdk_ver_code`) from App version (`app_ver`, `version_code`)
+- Separated SDK version (`sdk_ver`, `sdk_ver_code`) from App version name (`version_name`, `version_code`)
 
 ### v1.0.0
 

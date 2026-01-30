@@ -65,7 +65,7 @@ def main() -> None:
             "aid": 1233,
             "channel": "googleplay",
             "package": "com.zhiliaoapp.musically",
-            "app_version": "37.0.4",
+            "version_name": "37.0.4",
             "version_code": 2023700040,
             "sdk_ver_code": "3.9.17-bugfix.9",
             "os": "Android",

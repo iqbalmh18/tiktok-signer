@@ -76,16 +76,16 @@ class Argus:
         return b64encode(b"\xf2\x81" + cipher.encrypt(pad(b_buffer, block_size))).decode("utf-8")
     
     @staticmethod
-    def _calculate_app_version(app_ver: str) -> int:
+    def _calculate_app_version(version_name: str) -> int:
         """Calculate app version hash from version string.
         
         Args:
-            app_ver: App version string in format "major.minor.patch" (e.g., "37.0.4").
+            version_name: App version string in format "major.minor.patch" (e.g., "37.0.4").
         
         Returns:
             Calculated version hash.
         """
-        parts = app_ver.split(".")
+        parts = version_name.split(".")
         while len(parts) < 3:
             parts.append("0")
         app_version_hash = bytes.fromhex(
@@ -107,7 +107,7 @@ class Argus:
         lc_id: Union[str, int] = 2142840551,
         sdk_ver: str = "v05.01.02-alpha.7-ov-android",
         sdk_ver_code: Union[str, int] = 83952160,
-        app_ver: str = "37.0.4",
+        version_name: str = "37.0.4",
         version_code: Union[str, int] = 2023700040,
     ) -> Dict[str, str]:
         """Generate X-Argus header for TikTok API authentication.
@@ -121,7 +121,7 @@ class Argus:
             lc_id (str | int): License ID.
             sdk_ver (str): SDK version (e.g., "v05.01.02-alpha.7-ov-android").
             sdk_ver_code (str | int): SDK version code.
-            app_ver (str): App version (e.g., "37.0.4").
+            version_name (str): App version name (e.g., "37.0.4").
             version_code (str | int): App version code (e.g., 2023700040).
         
         Returns:
@@ -141,8 +141,7 @@ class Argus:
         device_id = params_dict.get("device_id", uuid4().hex[:16])[0]
         device_type = params_dict.get("device_type", [Argus.DEFAULT_DEVICE_TYPE])[0]
         os_version = params_dict.get("os_version", [Argus.DEFAULT_OS_VERSION])[0]
-        # Get app_version from params or use provided/default value
-        app_ver = params_dict.get("app_version", [app_ver])[0]
+        version_name = params_dict.get("version_name", [version_name])[0]
         stub = None
         if data is not None:
             from tiktok_signer.lib.stub import generate_stub
@@ -171,7 +170,7 @@ class Argus:
                 1: device_type,
                 2: os_version,
                 3: channel,
-                4: Argus._calculate_app_version(app_ver),
+                4: Argus._calculate_app_version(version_name),
             },
             25: 2,
         }

@@ -91,8 +91,12 @@ class TikTokSigner:
             ticket = float(unix)
         
         if device_id:
+            try:
+                device_hex = hex(int(device_id))[2:]
+            except ValueError:
+                device_hex = device_id.lower()
             trace = (
-                hex(int(device_id))[2:]
+                device_hex
                 + "".join(choice("0123456789abcdef") for _ in range(2))
                 + "0"
                 + hex(aid)[2:]

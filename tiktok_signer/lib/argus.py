@@ -86,6 +86,8 @@ class Argus:
             Calculated version hash.
         """
         parts = app_ver.split(".")
+        while len(parts) < 3:
+            parts.append("0")
         app_version_hash = bytes.fromhex(
             "{:x}{:x}{:x}00".format(
                 int(parts[2]) * 4,
